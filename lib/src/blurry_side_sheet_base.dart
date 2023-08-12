@@ -77,12 +77,14 @@ Future<void> showModalSideSheet(
   void Function()? cancelActionOnPressed,
   Duration? transitionDuration,
   double sigma = 20,
+  double borderRadius = 16,
+  Color barrierColor = Colors.black,
 }) async {
   showGeneralDialog(
     context: context,
     transitionDuration: transitionDuration ?? Duration(milliseconds: 500),
     barrierDismissible: barrierDismissible,
-    barrierColor: Theme.of(context).colorScheme.scrim.withOpacity(0.3),
+    barrierColor: barrierColor.withOpacity(0.3),
     barrierLabel: 'Material 3 side sheet',
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       return SlideTransition(
@@ -102,6 +104,7 @@ Future<void> showModalSideSheet(
         child: Align(
           alignment: Alignment.centerRight,
           child: SideSheetMaterial3(
+            borderRadius: borderRadius, 
             header: header,
             body: body,
             addBackIconButton: addBackIconButton,
@@ -123,6 +126,7 @@ Future<void> showModalSideSheet(
 
 class SideSheetMaterial3 extends StatelessWidget {
   final String header;
+  final double borderRadius;
   final Widget body;
   final bool addBackIconButton;
   final bool addCloseIconButton;
@@ -137,6 +141,7 @@ class SideSheetMaterial3 extends StatelessWidget {
   final void Function()? cancelActionOnPressed;
   const SideSheetMaterial3({
     super.key,
+    required this.borderRadius,
     required this.header,
     required this.body,
     required this.addBackIconButton,
@@ -162,7 +167,7 @@ class SideSheetMaterial3 extends StatelessWidget {
       elevation: 1,
       color: colorScheme.surface,
       surfaceTintColor: colorScheme.surfaceTint,
-      borderRadius: const BorderRadius.horizontal(left: Radius.circular(28)),
+      borderRadius: BorderRadius.horizontal(left: Radius.circular(borderRadius)),
       child: Container(
         constraints: BoxConstraints(
           minWidth: 256,
