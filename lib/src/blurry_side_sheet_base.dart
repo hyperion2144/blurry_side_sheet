@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 /// Displays a Material Design 3 side sheet as a general dialog.
@@ -74,6 +76,7 @@ Future<void> showModalSideSheet(
   void Function()? confirmActionOnPressed,
   void Function()? cancelActionOnPressed,
   Duration? transitionDuration,
+  double sigma = 20,
 }) async {
   showGeneralDialog(
     context: context,
@@ -90,21 +93,28 @@ Future<void> showModalSideSheet(
       );
     },
     pageBuilder: (context, animation1, animation2) {
-      return Align(
-        alignment: Alignment.centerRight,
-        child: SideSheetMaterial3(
-          header: header,
-          body: body,
-          addBackIconButton: addBackIconButton,
-          addActions: addActions,
-          addDivider: addDivider,
-          confirmActionOnPressed: confirmActionOnPressed,
-          cancelActionOnPressed: cancelActionOnPressed,
-          confirmActionTitle: confirmActionTitle,
-          cancelActionTitle: cancelActionTitle,
-          closeButtonTooltip: closeButtonTooltip,
-          backButtonTooltip: backButtonTooltip,
-          addCloseIconButton: addCloseIconButton,
+      return BackdropFilter(
+        blendMode: BlendMode.src,
+        filter: ImageFilter.blur(
+          sigmaX: sigma,
+          sigmaY: sigma,
+        ),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: SideSheetMaterial3(
+            header: header,
+            body: body,
+            addBackIconButton: addBackIconButton,
+            addActions: addActions,
+            addDivider: addDivider,
+            confirmActionOnPressed: confirmActionOnPressed,
+            cancelActionOnPressed: cancelActionOnPressed,
+            confirmActionTitle: confirmActionTitle,
+            cancelActionTitle: cancelActionTitle,
+            closeButtonTooltip: closeButtonTooltip,
+            backButtonTooltip: backButtonTooltip,
+            addCloseIconButton: addCloseIconButton,
+          ),
         ),
       );
     },

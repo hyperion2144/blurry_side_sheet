@@ -1,5 +1,5 @@
+import 'package:blurry_side_sheet/blurry_side_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:side_sheet_material3/side_sheet_material3.dart';
 
 void main() => runApp(const MyApp());
 

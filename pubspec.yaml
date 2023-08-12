@@ -1,8 +1,8 @@
-name: side_sheet_material3
-description: This Flutter package provides a Material Design 3 modal side sheet widget.
+name: blurry_side_sheet
+description: This Flutter package provides a Material Design 3 modal side sheet widget with blur background.
 version: 0.0.1
-repository: https://github.com/egortabula/side_sheet_material3
-issue_tracker: https://github.com/egortabula/side_sheet_material3/issues
+repository: https://github.com/hyperion2144/blurry_side_sheet
+issue_tracker: https://github.com/hyperion2144/blurry_side_sheet/issues
 platforms:
   android:
   ios:
@@ -15,7 +15,7 @@ screenshots:
     path: assets/Material design 3 side sheet.jpg
 
 environment:
-  sdk: '>=2.19.4 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dev_dependencies:
   lints: ^2.0.0
