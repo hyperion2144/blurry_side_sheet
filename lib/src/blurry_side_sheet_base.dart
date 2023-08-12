@@ -11,34 +11,9 @@ import 'package:flutter/material.dart';
 /// The [barrierDismissible] boolean value determines if the dialog can be dismissed
 /// by tapping outside of it or not. By default, it is set to false.
 ///
-/// The [addBackIconButton] boolean value determines if the side sheet should
-/// display a back button to close the dialog. By default, it is set to false.
-///
-/// The [addCloseIconButton] boolean value determines if the side sheet should
-/// display a close button to close the dialog. By default, it is set to `true`.
-///
-/// The [addActions] boolean value determines if the side sheet should display
-/// the action buttons or not. By default, it is set to `true`.
-///
 /// The [addDivider] boolean value determines if the side sheet should display
 /// a divider between the body and action buttons or not. By default, it is set to `true`.
 ///
-/// The [confirmActionTitle] is a string value for the text of the confirm action button.
-/// By default, it is set to 'Save'.
-///
-/// The [cancelActionTitle] is a string value for the text of the cancel action button.
-/// By default, it is set to 'Cancel'.
-///
-/// The [confirmActionOnPressed] is a function that will be called when the confirm action button
-/// is pressed. By default, it is set to null.
-///
-/// The [cancelActionOnPressed] is a function that will be called when the cancel action button
-/// is pressed. By default, it is set to null.
-///
-/// The [closeButtonTooltip] is a string value for the text of the close button tooltip.
-/// By default, it is set to 'Close'.
-///
-/// The [backButtonTooltip] is a string value for the text of the back button tooltip.
 /// By default, it is set to 'Back'.
 ///
 /// Example:
@@ -47,17 +22,7 @@ import 'package:flutter/material.dart';
 ///   context: context,
 ///   header: 'Edit Profile',
 ///   body: ProfileEditForm(),
-///   addBackIconButton: true,
-///   addActions: true,
 ///   addDivider: true,
-///   confirmActionTitle: 'Save',
-///   cancelActionTitle: 'Cancel',
-///   confirmActionOnPressed: () {
-///     // Do something
-///   },
-///   cancelActionOnPressed: () {
-///     // Do something
-///   },
 /// );
 /// ```
 Future<void> showModalSideSheet(
@@ -65,20 +30,17 @@ Future<void> showModalSideSheet(
   required Widget body,
   required String header,
   bool barrierDismissible = false,
-  bool addBackIconButton = false,
-  bool addCloseIconButton = true,
-  bool addActions = true,
   bool addDivider = true,
-  String confirmActionTitle = 'Save',
-  String cancelActionTitle = 'Cancel',
-  String? closeButtonTooltip = 'Close',
-  String? backButtonTooltip = 'Back',
-  void Function()? confirmActionOnPressed,
-  void Function()? cancelActionOnPressed,
   Duration? transitionDuration,
   double sigma = 20,
   double borderRadius = 16,
   Color barrierColor = Colors.black,
+  Widget? closeButton,
+  Widget? cancelButton,
+  TextStyle? titleStyle,
+  Widget? backButton,
+  List<Widget> actions = const [],
+  MainAxisAlignment actionsMainAxisAlignment = MainAxisAlignment.end,
 }) async {
   showGeneralDialog(
     context: context,
@@ -104,19 +66,15 @@ Future<void> showModalSideSheet(
         child: Align(
           alignment: Alignment.centerRight,
           child: SideSheetMaterial3(
-            borderRadius: borderRadius, 
+            borderRadius: borderRadius,
             header: header,
             body: body,
-            addBackIconButton: addBackIconButton,
-            addActions: addActions,
             addDivider: addDivider,
-            confirmActionOnPressed: confirmActionOnPressed,
-            cancelActionOnPressed: cancelActionOnPressed,
-            confirmActionTitle: confirmActionTitle,
-            cancelActionTitle: cancelActionTitle,
-            closeButtonTooltip: closeButtonTooltip,
-            backButtonTooltip: backButtonTooltip,
-            addCloseIconButton: addCloseIconButton,
+            backButton: backButton,
+            closeButton: closeButton,
+            titleStyle: titleStyle,
+            actions: actions,
+            actionsMainAxisAlignment: actionsMainAxisAlignment,
           ),
         ),
       );
@@ -128,32 +86,24 @@ class SideSheetMaterial3 extends StatelessWidget {
   final String header;
   final double borderRadius;
   final Widget body;
-  final bool addBackIconButton;
-  final bool addCloseIconButton;
-  final bool addActions;
+  final Widget? closeButton;
+  final Widget? backButton;
   final bool addDivider;
-  final String confirmActionTitle;
-  final String cancelActionTitle;
-  final String? closeButtonTooltip;
-  final String? backButtonTooltip;
+  final TextStyle? titleStyle;
+  final List<Widget> actions;
+  final MainAxisAlignment actionsMainAxisAlignment;
 
-  final void Function()? confirmActionOnPressed;
-  final void Function()? cancelActionOnPressed;
   const SideSheetMaterial3({
     super.key,
     required this.borderRadius,
     required this.header,
     required this.body,
-    required this.addBackIconButton,
-    required this.addActions,
     required this.addDivider,
-    required this.cancelActionOnPressed,
-    required this.confirmActionOnPressed,
-    required this.cancelActionTitle,
-    required this.confirmActionTitle,
-    required this.closeButtonTooltip,
-    required this.backButtonTooltip,
-    required this.addCloseIconButton,
+    this.closeButton,
+    this.titleStyle,
+    required this.actions,
+    required this.actionsMainAxisAlignment,
+    this.backButton,
   });
 
   @override
@@ -167,7 +117,8 @@ class SideSheetMaterial3 extends StatelessWidget {
       elevation: 1,
       color: colorScheme.surface,
       surfaceTintColor: colorScheme.surfaceTint,
-      borderRadius: BorderRadius.horizontal(left: Radius.circular(borderRadius)),
+      borderRadius:
+          BorderRadius.horizontal(left: Radius.circular(borderRadius)),
       child: Container(
         constraints: BoxConstraints(
           minWidth: 256,
@@ -177,13 +128,21 @@ class SideSheetMaterial3 extends StatelessWidget {
         ),
         child: Column(
           children: [
-            _buildHeader(textTheme, context),
+            _buildHeader(
+              context,
+              closeButton,
+              titleStyle ?? textTheme.titleSmall,
+            ),
             Expanded(
               child: body,
             ),
             Visibility(
-              visible: addActions,
-              child: _buildFooter(context),
+              visible: actions.isNotEmpty,
+              child: _buildFooter(
+                context,
+                actionsMainAxisAlignment,
+                actions,
+              ),
             ),
           ],
         ),
@@ -192,52 +151,41 @@ class SideSheetMaterial3 extends StatelessWidget {
   }
 
   Widget _buildHeader(
-    TextTheme textTheme,
     BuildContext context,
+    Widget? closeButton,
+    TextStyle? titleStyle,
   ) {
+    bool addCloseIconButton = closeButton != null;
     return Padding(
-      padding: EdgeInsets.fromLTRB(addBackIconButton ? 16 : 24, 16, 16, 16),
+      padding: EdgeInsets.fromLTRB(addCloseIconButton ? 16 : 24, 16, 16, 16),
       child: Row(
         children: [
-          Visibility(
-            visible: addBackIconButton,
-            child: Container(
+          if (backButton != null)
+            Container(
               margin: const EdgeInsets.only(right: 12),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                tooltip: backButtonTooltip,
-                icon: const Icon(Icons.arrow_back),
-              ),
+              child: backButton,
             ),
-          ),
           Text(
             header,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: textTheme.titleSmall,
+            style: titleStyle,
           ),
           Flexible(
             fit: FlexFit.tight,
             child: SizedBox(width: addCloseIconButton ? 12 : 8),
           ),
-          Visibility(
-            visible: addCloseIconButton,
-            child: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              tooltip: closeButtonTooltip,
-              icon: const Icon(Icons.close),
-            ),
-          ),
+          if (addCloseIconButton) closeButton,
         ],
       ),
     );
   }
 
-  Widget _buildFooter(BuildContext context) {
+  Widget _buildFooter(
+    BuildContext context,
+    MainAxisAlignment mainAxisAlignment,
+    List<Widget> actions,
+  ) {
     return Column(
       children: [
         Visibility(
@@ -250,23 +198,8 @@ class SideSheetMaterial3 extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(24.0, 16, 24, 24),
           child: Row(
-            children: [
-              FilledButton(
-                onPressed: confirmActionOnPressed,
-                child: Text(confirmActionTitle),
-              ),
-              const SizedBox(width: 12),
-              OutlinedButton(
-                onPressed: () {
-                  if (cancelActionOnPressed == null) {
-                    Navigator.pop(context);
-                  } else {
-                    cancelActionOnPressed!();
-                  }
-                },
-                child: Text(cancelActionTitle),
-              ),
-            ],
+            mainAxisAlignment: mainAxisAlignment,
+            children: actions,
           ),
         ),
       ],
